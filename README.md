@@ -61,7 +61,7 @@ ai_video_generator/
 
 1. Clone this repository:
    ```bash
-   git clone https://github.com/yourusername/ai-video-generator.git
+   git clone https://github.com/connorodea/ai-video-generator.git
    cd ai-video-generator
    ```
 
@@ -179,6 +179,10 @@ This project is licensed under the MIT License - see the [LICENSE](LICENSE) file
 ## 📧 Contact
 
 For questions or feedback, please open an issue or contact the maintainers directly.
+
+## Consulting 
+
+For consulting or contracting, please contact us and we can discuss the details of your project. 
 
 ---
 

@@ -1,0 +1,385 @@
+<!-- ui/web/templates/settings.html -->
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Settings - AI Video Generator</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.0/font/bootstrap-icons.css">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/styles.css') }}">
+</head>
+<body>
+    <nav class="navbar navbar-expand-lg navbar-dark bg-dark">
+        <div class="container">
+            <a class="navbar-brand" href="{{ url_for('index') }}">
+                <i class="bi bi-camera-video"></i> AI Video Generator
+            </a>
+            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+            <div class="collapse navbar-collapse" id="navbarNav">
+                <ul class="navbar-nav ms-auto">
+                    <li class="nav-item">
+                        <a class="nav-link" href="{{ url_for('index') }}">Dashboard</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="{{ url_for('create_project') }}">Create Project</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link active" href="{{ url_for('settings') }}">Settings</a>
+                    </li>
+                </ul>
+            </div>
+        </div>
+    </nav>
+
+    <div class="container mt-4">
+        <!-- Notifications -->
+        {% if message %}
+        <div class="alert alert-success alert-dismissible fade show" role="alert">
+            {{ message }}
+            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+        </div>
+        {% endif %}
+        
+        {% if error %}
+        <div class="alert alert-danger alert-dismissible fade show" role="alert">
+            {{ error }}
+            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+        </div>
+        {% endif %}
+
+        <div class="row">
+            <div class="col-md-12">
+                <div class="card mb-4">
+                    <div class="card-header">
+                        <h4><i class="bi bi-key"></i> API Keys</h4>
+                    </div>
+                    <div class="card-body">
+                        <form action="{{ url_for('settings') }}" method="post">
+                            <div class="alert alert-info">
+                                <i class="bi bi-info-circle"></i> These API keys are required for accessing external services.
+                            </div>
+
+                            <div class="row mb-3">
+                                <div class="col-md-6">
+                                    <label for="api_key_openai" class="form-label">OpenAI API Key</label>
+                                    <input type="password" class="form-control api-key-input" id="api_key_openai" name="api_key_openai" 
+                                        value="{{ api_keys.get('openai', '') }}" placeholder="sk-...">
+                                    <div class="form-text">For DALL-E image generation and GPT-4 script generation</div>
+                                </div>
+                                <div class="col-md-6">
+                                    <label for="api_key_anthropic" class="form-label">Anthropic API Key</label>
+                                    <input type="password" class="form-control api-key-input" id="api_key_anthropic" name="api_key_anthropic" 
+                                        value="{{ api_keys.get('anthropic', '') }}" placeholder="sk-ant-...">
+                                    <div class="form-text">For Claude script generation (optional)</div>
+                                </div>
+                            </div>
+
+                            <div class="row mb-3">
+                                <div class="col-md-6">
+                                    <label for="api_key_elevenlabs" class="form-label">ElevenLabs API Key</label>
+                                    <input type="password" class="form-control api-key-input" id="api_key_elevenlabs" name="api_key_elevenlabs" 
+                                        value="{{ api_keys.get('elevenlabs', '') }}" placeholder="...">
+                                    <div class="form-text">For high-quality AI voiceovers</div>
+                                </div>
+                                <div class="col-md-6">
+                                    <label for="api_key_stability_ai" class="form-label">Stability AI API Key</label>
+                                    <input type="password" class="form-control api-key-input" id="api_key_stability_ai" name="api_key_stability_ai" 
+                                        value="{{ api_keys.get('stability_ai', '') }}" placeholder="sk-...">
+                                    <div class="form-text">For Stable Diffusion image generation (optional)</div>
+                                </div>
+                            </div>
+
+                            <div class="row mb-3">
+                                <div class="col-md-6">
+                                    <label for="api_key_pexels" class="form-label">Pexels API Key</label>
+                                    <input type="password" class="form-control api-key-input" id="api_key_pexels" name="api_key_pexels" 
+                                        value="{{ api_keys.get('pexels', '') }}" placeholder="...">
+                                    <div class="form-text">For stock video and image access</div>
+                                </div>
+                                <div class="col-md-6">
+                                    <label for="api_key_pixabay" class="form-label">Pixabay API Key</label>
+                                    <input type="password" class="form-control api-key-input" id="api_key_pixabay" name="api_key_pixabay" 
+                                        value="{{ api_keys.get('pixabay', '') }}" placeholder="...">
+                                    <div class="form-text">For additional stock video and image access</div>
+                                </div>
+                            </div>
+
+                            <div class="row mb-3">
+                                <div class="col-md-6">
+                                    <label for="api_key_unsplash" class="form-label">Unsplash API Key</label>
+                                    <input type="password" class="form-control api-key-input" id="api_key_unsplash" name="api_key_unsplash" 
+                                        value="{{ api_keys.get('unsplash', '') }}" placeholder="...">
+                                    <div class="form-text">For high-quality stock images</div>
+                                </div>
+                            </div>
+
+                            <div class="form-check mb-3">
+                                <input class="form-check-input" type="checkbox" id="show_api_keys">
+                                <label class="form-check-label" for="show_api_keys">
+                                    Show API Keys
+                                </label>
+                            </div>
+
+                            <button type="submit" name="update_api_keys" value="1" class="btn btn-primary">
+                                <i class="bi bi-save"></i> Save API Keys
+                            </button>
+                        </form>
+                    </div>
+                </div>
+
+                <div class="card">
+                    <div class="card-header">
+                        <h4><i class="bi bi-gear"></i> General Settings</h4>
+                    </div>
+                    <div class="card-body">
+                        <form action="{{ url_for('settings') }}" method="post">
+                            <ul class="nav nav-tabs mb-3" id="settingsTabs" role="tablist">
+                                <li class="nav-item" role="presentation">
+                                    <button class="nav-link active" id="script-tab" data-bs-toggle="tab" data-bs-target="#script" type="button" role="tab">
+                                        Script Generation
+                                    </button>
+                                </li>
+                                <li class="nav-item" role="presentation">
+                                    <button class="nav-link" id="voice-tab" data-bs-toggle="tab" data-bs-target="#voice" type="button" role="tab">
+                                        Voice Generation
+                                    </button>
+                                </li>
+                                <li class="nav-item" role="presentation">
+                                    <button class="nav-link" id="media-tab" data-bs-toggle="tab" data-bs-target="#media" type="button" role="tab">
+                                        Media Selection
+                                    </button>
+                                </li>
+                                <li class="nav-item" role="presentation">
+                                    <button class="nav-link" id="video-tab" data-bs-toggle="tab" data-bs-target="#video" type="button" role="tab">
+                                        Video Settings
+                                    </button>
+                                </li>
+                            </ul>
+                            
+                            <div class="tab-content" id="settingsTabContent">
+                                <!-- Script Generation Settings -->
+                                <div class="tab-pane fade show active" id="script" role="tabpanel" aria-labelledby="script-tab">
+                                    <h5 class="mb-3">Script Generation Settings</h5>
+                                    
+                                    <div class="row mb-3">
+                                        <div class="col-md-6">
+                                            <label for="script_tone" class="form-label">Default Tone</label>
+                                            <select class="form-select" id="script_tone" name="script_tone">
+                                                <option value="informative" {% if config.get('script', {}).get('tone') == 'informative' %}selected{% endif %}>Informative</option>
+                                                <option value="casual" {% if config.get('script', {}).get('tone') == 'casual' %}selected{% endif %}>Casual</option>
+                                                <option value="professional" {% if config.get('script', {}).get('tone') == 'professional' %}selected{% endif %}>Professional</option>
+                                                <option value="humorous" {% if config.get('script', {}).get('tone') == 'humorous' %}selected{% endif %}>Humorous</option>
+                                                <option value="inspirational" {% if config.get('script', {}).get('tone') == 'inspirational' %}selected{% endif %}>Inspirational</option>
+                                                <option value="dramatic" {% if config.get('script', {}).get('tone') == 'dramatic' %}selected{% endif %}>Dramatic</option>
+                                            </select>
+                                        </div>
+                                    </div>
+                                    
+                                    <div class="form-check mb-3">
+                                        <input class="form-check-input" type="checkbox" id="script_timestamps" name="script_timestamps"
+                                              {% if config.get('script', {}).get('include_timestamps', True) %}checked{% endif %}>
+                                        <label class="form-check-label" for="script_timestamps">
+                                            Include timestamps in scripts
+                                        </label>
+                                    </div>
+                                    
+                                    <div class="row mb-3">
+                                        <div class="col-md-6">
+                                            <label for="script_timestamp_interval" class="form-label">Timestamp interval (seconds)</label>
+                                            <input type="number" class="form-control" id="script_timestamp_interval" name="script_timestamp_interval"
+                                                  value="{{ config.get('script', {}).get('timestamp_interval', 30) }}" min="10" max="60">
+                                        </div>
+                                    </div>
+                                </div>
+                                
+                                <!-- Voice Generation Settings -->
+                                <div class="tab-pane fade" id="voice" role="tabpanel" aria-labelledby="voice-tab">
+                                    <h5 class="mb-3">Voice Generation Settings</h5>
+                                    
+                                    <div class="row mb-3">
+                                        <div class="col-md-6">
+                                            <label for="voice_provider" class="form-label">Default Voice Provider</label>
+                                            <select class="form-select" id="voice_provider" name="voice_provider">
+                                                <option value="elevenlabs" {% if config.get('voiceover', {}).get('provider') == 'elevenlabs' %}selected{% endif %}>ElevenLabs</option>
+                                                <option value="google" {% if config.get('voiceover', {}).get('provider') == 'google' %}selected{% endif %}>Google Cloud TTS</option>
+                                                <option value="aws" {% if config.get('voiceover', {}).get('provider') == 'aws' %}selected{% endif %}>Amazon Polly</option>
+                                                <option value="coqui" {% if config.get('voiceover', {}).get('provider') == 'coqui' %}selected{% endif %}>Coqui TTS (Local)</option>
+                                            </select>
+                                        </div>
+                                        
+                                        <div class="col-md-6">
+                                            <label for="voice_default" class="form-label">Default Voice</label>
+                                            <select class="form-select" id="voice_default" name="voice_default">
+                                                <option value="adam" {% if config.get('voiceover', {}).get('default_voice') == 'adam' %}selected{% endif %}>Adam (Male)</option>
+                                                <option value="antoni" {% if config.get('voiceover', {}).get('default_voice') == 'antoni' %}selected{% endif %}>Antoni (Male)</option>
+                                                <option value="bella" {% if config.get('voiceover', {}).get('default_voice') == 'bella' %}selected{% endif %}>Bella (Female)</option>
+                                                <option value="rachel" {% if config.get('voiceover', {}).get('default_voice') == 'rachel' %}selected{% endif %}>Rachel (Female)</option>
+                                                <option value="josh" {% if config.get('voiceover', {}).get('default_voice') == 'josh' %}selected{% endif %}>Josh (Male)</option>
+                                                <option value="emily" {% if config.get('voiceover', {}).get('default_voice') == 'emily' %}selected{% endif %}>Emily (Female)</option>
+                                            </select>
+                                        </div>
+                                    </div>
+                                    
+                                    <div class="row mb-3">
+                                        <div class="col-md-6">
+                                            <label for="voice_rate" class="form-label">Default Speech Rate</label>
+                                            <input type="range" class="form-range" min="0.5" max="1.5" step="0.1" id="voice_rate" name="voice_rate"
+                                                  value="{{ config.get('voiceover', {}).get('speech_rate', 1.0) }}">
+                                            <div class="d-flex justify-content-between">
+                                                <span>Slower (0.5x)</span>
+                                                <span id="voice_rate_value">{{ config.get('voiceover', {}).get('speech_rate', 1.0) }}x</span>
+                                                <span>Faster (1.5x)</span>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                                
+                                <!-- Media Selection Settings -->
+                                <div class="tab-pane fade" id="media" role="tabpanel" aria-labelledby="media-tab">
+                                    <h5 class="mb-3">Media Selection Settings</h5>
+                                    
+                                    <div class="mb-3">
+                                        <label class="form-label">Media Providers</label>
+                                        <div class="form-check">
+                                            <input class="form-check-input" type="checkbox" id="media_provider_pexels" name="media_provider_pexels"
+                                                  {% if 'pexels' in config.get('visual_assets', {}).get('providers', []) %}checked{% endif %}>
+                                            <label class="form-check-label" for="media_provider_pexels">
+                                                Pexels (Videos and Images)
+                                            </label>
+                                        </div>
+                                        <div class="form-check">
+                                            <input class="form-check-input" type="checkbox" id="media_provider_pixabay" name="media_provider_pixabay"
+                                                  {% if 'pixabay' in config.get('visual_assets', {}).get('providers', []) %}checked{% endif %}>
+                                            <label class="form-check-label" for="media_provider_pixabay">
+                                                Pixabay (Videos and Images)
+                                            </label>
+                                        </div>
+                                        <div class="form-check">
+                                            <input class="form-check-input" type="checkbox" id="media_provider_unsplash" name="media_provider_unsplash"
+                                                  {% if 'unsplash' in config.get('visual_assets', {}).get('providers', []) %}checked{% endif %}>
+                                            <label class="form-check-label" for="media_provider_unsplash">
+                                                Unsplash (Images only)
+                                            </label>
+                                        </div>
+                                    </div>
+                                    
+                                    <div class="form-check mb-3">
+                                        <input class="form-check-input" type="checkbox" id="media_prefer_video" name="media_prefer_video"
+                                              {% if config.get('visual_assets', {}).get('prefer_video_over_image', True) %}checked{% endif %}>
+                                        <label class="form-check-label" for="media_prefer_video">
+                                            Prefer videos over images when available
+                                        </label>
+                                    </div>
+                                    
+                                    <div class="row mb-3">
+                                        <div class="col-md-6">
+                                            <label for="media_max_assets" class="form-label">Maximum assets per segment</label>
+                                            <input type="number" class="form-control" id="media_max_assets" name="media_max_assets"
+                                                  value="{{ config.get('visual_assets', {}).get('max_assets_per_segment', 3) }}" min="1" max="10">
+                                            <div class="form-text">Number of images/videos to use for each script segment</div>
+                                        </div>
+                                    </div>
+                                </div>
+                                
+                                <!-- Video Settings -->
+                                <div class="tab-pane fade" id="video" role="tabpanel" aria-labelledby="video-tab">
+                                    <h5 class="mb-3">Video Settings</h5>
+                                    
+                                    <div class="row mb-3">
+                                        <div class="col-md-6">
+                                            <label for="video_resolution" class="form-label">Output Resolution</label>
+                                            <select class="form-select" id="video_resolution" name="video_resolution">
+                                                <option value="1920x1080" {% if config.get('video_editing', {}).get('output_resolution', {}).get('width') == 1920 %}selected{% endif %}>1080p (1920x1080)</option>
+                                                <option value="1280x720" {% if config.get('video_editing', {}).get('output_resolution', {}).get('width') == 1280 %}selected{% endif %}>720p (1280x720)</option>
+                                                <option value="2560x1440" {% if config.get('video_editing', {}).get('output_resolution', {}).get('width') == 2560 %}selected{% endif %}>1440p (2560x1440)</option>
+                                                <option value="3840x2160" {% if config.get('video_editing', {}).get('output_resolution', {}).get('width') == 3840 %}selected{% endif %}>4K (3840x2160)</option>
+                                            </select>
+                                        </div>
+                                        
+                                        <div class="col-md-6">
+                                            <label for="video_fps" class="form-label">Frame Rate (FPS)</label>
+                                            <select class="form-select" id="video_fps" name="video_fps">
+                                                <option value="24" {% if config.get('video_editing', {}).get('fps') == 24 %}selected{% endif %}>24 FPS (Cinematic)</option>
+                                                <option value="30" {% if config.get('video_editing', {}).get('fps') == 30 %}selected{% endif %}>30 FPS (Standard)</option>
+                                                <option value="60" {% if config.get('video_editing', {}).get('fps') == 60 %}selected{% endif %}>60 FPS (Smooth)</option>
+                                            </select>
+                                        </div>
+                                    </div>
+                                    
+                                    <div class="form-check mb-3">
+                                        <input class="form-check-input" type="checkbox" id="video_ken_burns" name="video_ken_burns"
+                                              {% if config.get('video_editing', {}).get('ken_burns', {}).get('enabled', True) %}checked{% endif %}>
+                                        <label class="form-check-label" for="video_ken_burns">
+                                            Enable Ken Burns effect for images
+                                        </label>
+                                        <div class="form-text">Adds subtle zooming and panning to still images</div>
+                                    </div>
+                                    
+                                    <h6 class="mt-4 mb-2">Audio Settings</h6>
+                                    
+                                    <div class="form-check mb-3">
+                                        <input class="form-check-input" type="checkbox" id="audio_music" name="audio_music"
+                                              {% if config.get('audio', {}).get('music', {}).get('enabled', True) %}checked{% endif %}>
+                                        <label class="form-check-label" for="audio_music">
+                                            Add background music to videos
+                                        </label>
+                                    </div>
+                                    
+                                    <div class="row mb-3">
+                                        <div class="col-md-6">
+                                            <label for="audio_music_volume" class="form-label">Background Music Volume</label>
+                                            <input type="range" class="form-range" min="0.05" max="0.5" step="0.05" id="audio_music_volume" name="audio_music_volume"
+                                                  value="{{ config.get('audio', {}).get('music', {}).get('volume', 0.2) }}">
+                                            <div class="d-flex justify-content-between">
+                                                <span>Quiet (5%)</span>
+                                                <span id="audio_music_volume_value">{{ (config.get('audio', {}).get('music', {}).get('volume', 0.2) * 100)|int }}%</span>
+                                                <span>Loud (50%)</span>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            
+                            <button type="submit" name="update_config" value="1" class="btn btn-primary mt-3">
+                                <i class="bi bi-save"></i> Save Settings
+                            </button>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <footer class="bg-dark text-white text-center py-3 mt-5">
+        <div class="container">
+            <p class="mb-0">AI Video Generator &copy; 2025</p>
+        </div>
+    </footer>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <script>
+        $(document).ready(function() {
+            // Show/hide API keys
+            $('#show_api_keys').change(function() {
+                const type = $(this).is(':checked') ? 'text' : 'password';
+                $('.api-key-input').attr('type', type);
+            });
+            
+            // Update voice rate value display
+            $('#voice_rate').on('input', function() {
+                $('#voice_rate_value').text($(this).val() + 'x');
+            });
+            
+            // Update music volume value display
+            $('#audio_music_volume').on('input', function() {
+                const percent = Math.round($(this).val() * 100);
+                $('#audio_music_volume_value').text(percent + '%');
+            });
+        });
+    </script>
+</body>
+</html>

@@ -1,0 +1,198 @@
+<!-- ui/web/templates/create.html -->
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Create Project - AI Video Generator</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.0/font/bootstrap-icons.css">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/styles.css') }}">
+</head>
+<body>
+    <nav class="navbar navbar-expand-lg navbar-dark bg-dark">
+        <div class="container">
+            <a class="navbar-brand" href="{{ url_for('index') }}">
+                <i class="bi bi-camera-video"></i> AI Video Generator
+            </a>
+            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+            <div class="collapse navbar-collapse" id="navbarNav">
+                <ul class="navbar-nav ms-auto">
+                    <li class="nav-item">
+                        <a class="nav-link" href="{{ url_for('index') }}">Dashboard</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link active" href="{{ url_for('create_project') }}">Create Project</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="{{ url_for('settings') }}">Settings</a>
+                    </li>
+                </ul>
+            </div>
+        </div>
+    </nav>
+
+    <div class="container mt-4">
+        <div class="row">
+            <div class="col-md-12">
+                <div class="card">
+                    <div class="card-header">
+                        <h4>Create New Video Project</h4>
+                    </div>
+                    <div class="card-body">
+                        <form action="{{ url_for('create_project') }}" method="post">
+                            <div class="mb-3">
+                                <label for="topic" class="form-label">Video Topic <span class="text-danger">*</span></label>
+                                <input type="text" class="form-control" id="topic" name="topic" required 
+                                       placeholder="Enter a detailed topic for your video">
+                                <div class="form-text">
+                                    Be specific and descriptive. For example: "The Impact of Climate Change on Polar Bears" 
+                                    instead of just "Climate Change".
+                                </div>
+                            </div>
+
+                            <div class="row mb-3">
+                                <div class="col-md-6">
+                                    <label for="script_type" class="form-label">Script Type</label>
+                                    <select class="form-select" id="script_type" name="script_type">
+                                        <option value="standard">Standard</option>
+                                        <option value="educational">Educational</option>
+                                        <option value="entertainment">Entertainment</option>
+                                    </select>
+                                    <div class="form-text">
+                                        Educational: more informative and structured
+                                        <br>
+                                        Entertainment: more engaging and casual
+                                    </div>
+                                </div>
+                                <div class="col-md-6">
+                                    <label for="duration" class="form-label">Target Duration (minutes)</label>
+                                    <input type="number" class="form-control" id="duration" name="duration" value="5" min="1" max="20">
+                                    <div class="form-text">
+                                        Approximate video length (1-20 minutes)
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="row mb-3">
+                                <div class="col-md-6">
+                                    <label for="tone" class="form-label">Tone</label>
+                                    <select class="form-select" id="tone" name="tone">
+                                        <option value="informative">Informative</option>
+                                        <option value="casual">Casual</option>
+                                        <option value="professional">Professional</option>
+                                        <option value="humorous">Humorous</option>
+                                        <option value="inspirational">Inspirational</option>
+                                        <option value="dramatic">Dramatic</option>
+                                    </select>
+                                </div>
+                                <div class="col-md-6">
+                                    <label for="voice" class="form-label">Voice</label>
+                                    <select class="form-select" id="voice" name="voice">
+                                        <option value="">Default Voice</option>
+                                        <option value="adam">Adam (Male)</option>
+                                        <option value="antoni">Antoni (Male)</option>
+                                        <option value="bella">Bella (Female)</option>
+                                        <option value="rachel">Rachel (Female)</option>
+                                        <option value="josh">Josh (Male)</option>
+                                        <option value="emily">Emily (Female)</option>
+                                    </select>
+                                </div>
+                            </div>
+
+                            <div class="mb-3">
+                                <label for="keywords" class="form-label">Keywords (optional)</label>
+                                <input type="text" class="form-control" id="keywords" name="keywords" 
+                                       placeholder="Enter comma-separated keywords (e.g., science, animals, conservation)">
+                                <div class="form-text">
+                                    These keywords will be used to guide both script generation and media selection.
+                                </div>
+                            </div>
+
+                            <div class="mb-3">
+                                <div class="form-check">
+                                    <input class="form-check-input" type="checkbox" id="advanced" 
+                                           data-bs-toggle="collapse" data-bs-target="#advancedOptions">
+                                    <label class="form-check-label" for="advanced">
+                                        Show Advanced Options
+                                    </label>
+                                </div>
+                            </div>
+
+                            <div class="collapse mb-3" id="advancedOptions">
+                                <div class="card card-body">
+                                    <h5>Advanced Options</h5>
+                                    
+                                    <div class="mb-3">
+                                        <label class="form-label">Pipeline Stages:</label>
+                                        <div class="form-check">
+                                            <input class="form-check-input" type="checkbox" id="stage_script" name="stages" value="script_generation" checked disabled>
+                                            <label class="form-check-label" for="stage_script">
+                                                Script Generation (required)
+                                            </label>
+                                        </div>
+                                        <div class="form-check">
+                                            <input class="form-check-input" type="checkbox" id="stage_voice" name="stages" value="voice_generation" checked>
+                                            <label class="form-check-label" for="stage_voice">
+                                                Voice Generation
+                                            </label>
+                                        </div>
+                                        <div class="form-check">
+                                            <input class="form-check-input" type="checkbox" id="stage_media" name="stages" value="media_selection" checked>
+                                            <label class="form-check-label" for="stage_media">
+                                                Media Selection
+                                            </label>
+                                        </div>
+                                        <div class="form-check">
+                                            <input class="form-check-input" type="checkbox" id="stage_subtitle" name="stages" value="subtitle_generation" checked>
+                                            <label class="form-check-label" for="stage_subtitle">
+                                                Subtitle Generation
+                                            </label>
+                                        </div>
+                                        <div class="form-check">
+                                            <input class="form-check-input" type="checkbox" id="stage_video" name="stages" value="video_assembly" checked>
+                                            <label class="form-check-label" for="stage_video">
+                                                Video Assembly
+                                            </label>
+                                        </div>
+                                        <div class="form-check">
+                                            <input class="form-check-input" type="checkbox" id="stage_audio" name="stages" value="audio_processing" checked>
+                                            <label class="form-check-label" for="stage_audio">
+                                                Audio Processing
+                                            </label>
+                                        </div>
+                                        <div class="form-check">
+                                            <input class="form-check-input" type="checkbox" id="stage_export" name="stages" value="final_export" checked>
+                                            <label class="form-check-label" for="stage_export">
+                                                Final Export
+                                            </label>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="d-grid gap-2">
+                                <button type="submit" class="btn btn-primary btn-lg">
+                                    <i class="bi bi-play-fill"></i> Generate Video
+                                </button>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <footer class="bg-dark text-white text-center py-3 mt-5">
+        <div class="container">
+            <p class="mb-0">AI Video Generator &copy; 2025</p>
+        </div>
+    </footer>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <script src="{{ url_for('static', filename='js/main.js') }}"></script>
+</body>
+</html>

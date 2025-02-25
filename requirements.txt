@@ -1,0 +1,35 @@
+# Core dependencies
+openai>=1.0.0
+anthropic>=0.5.0
+requests>=2.28.0
+Pillow>=9.0.0
+pydub>=0.25.0
+numpy>=1.20.0
+scipy>=1.7.0
+tqdm>=4.64.0
+python-dotenv>=0.20.0
+flask>=2.0.0
+flask-cors>=3.0.10
+
+# Video and audio processing
+ffmpeg-python>=0.2.0
+moviepy>=1.0.3
+opencv-python>=4.6.0
+librosa>=0.9.2
+
+# TTS dependencies
+elevenlabs>=0.2.24
+# google-cloud-texttospeech>=2.12.0  # Uncomment if using Google Cloud TTS
+# boto3>=1.24.0  # Uncomment if using Amazon Polly
+# TTS>=0.8.0  # Uncomment if using Coqui TTS
+
+# Machine learning
+# whisper>=0.0.1  # For OpenAI Whisper (subtitles)
+# diffusers>=0.14.0  # For Stable Diffusion
+# torch>=1.12.0  # For PyTorch (needed for diffusers)
+# transformers>=4.25.0  # For Hugging Face models
+
+# Optional dependencies for advanced features
+# pyscenedetect>=0.6.0  # For scene detection
+# replicate>=0.4.0  # For Replicate API
+# stability-sdk>=0.8.0  # For Stability AI API

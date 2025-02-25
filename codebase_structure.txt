@@ -1,0 +1,71 @@
+ai_video_generator/
+│
+├── config/                         # Configuration files
+│   ├── api_keys.json               # Store API keys for various services
+│   ├── default_settings.json       # Default generation settings
+│   └── user_preferences.json       # User-specific settings
+│
+├── core/                           # Core modules for the main pipeline
+│   ├── __init__.py
+│   ├── pipeline.py                 # Main workflow orchestrator
+│   ├── script_generator.py         # LLM-based script generation
+│   ├── voice_generator.py          # TTS implementation
+│   ├── media_selector.py           # Visual asset retrieval and selection
+│   ├── video_editor.py             # Video editing and composition
+│   ├── subtitle_generator.py       # Subtitle generation and embedding
+│   └── audio_processor.py          # Music selection and audio mixing
+│
+├── models/                         # ML models and AI components
+│   ├── __init__.py
+│   ├── llm_wrapper.py              # Interface to LLMs (GPT-4, Claude, etc.)
+│   ├── tts_wrapper.py              # Interface to TTS services
+│   ├── image_generator.py          # Interface to image generation models
+│   ├── scene_detector.py           # Video scene segmentation
+│   ├── color_grading.py            # AI color grading models
+│   └── content_classifier.py       # Content relevance classifier
+│
+├── data_providers/                 # APIs to external data sources
+│   ├── __init__.py
+│   ├── stock_video_api.py          # Interface to Pexels, Pixabay, etc.
+│   ├── stock_image_api.py          # Interface to Unsplash, etc.
+│   ├── youtube_api.py              # YouTube API for uploads
+│   ├── music_library_api.py        # Royalty-free music sources
+│   └── web_scraper.py              # Web scraping for creative commons media
+│
+├── utils/                          # Utility functions and helpers
+│   ├── __init__.py
+│   ├── ffmpeg_wrapper.py           # FFmpeg utility functions
+│   ├── file_manager.py             # File handling and organization
+│   ├── prompt_templates.py         # LLM prompt templates
+│   ├── video_effects.py            # Video transition and effect utilities
+│   └── logger.py                   # Logging utilities
+│
+├── ui/                             # User interfaces
+│   ├── cli/                        # Command line interface
+│   │   ├── __init__.py
+│   │   └── cli_app.py              # CLI implementation
+│   ├── web/                        # Web interface (if applicable)
+│   │   ├── frontend/               # React/Next.js components
+│   │   └── backend/                # API endpoints
+│   └── desktop/                    # Desktop interface (if applicable)
+│       └── electron_app/           # Electron.js files
+│
+├── tests/                          # Test suite
+│   ├── unit/                       # Unit tests for individual components
+│   ├── integration/                # Tests for component integration
+│   └── e2e/                        # End-to-end tests
+│
+├── examples/                       # Example scripts and configurations
+│   ├── sample_topics.json          # Sample topics for testing
+│   ├── sample_videos.mp4           # Sample output videos
+│   └── demo_scripts/               # Sample generated scripts
+│
+├── docs/                           # Documentation
+│   ├── api/                        # API documentation
+│   ├── usage/                      # Usage guides
+│   └── development/                # Development guides
+│
+├── requirements.txt                # Python dependencies
+├── setup.py                        # Package installation
+├── main.py                         # Main entry point
+└── README.md                       # Project documentation

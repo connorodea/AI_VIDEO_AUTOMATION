@@ -1,0 +1,404 @@
+<!-- ui/web/templates/project_status.html -->
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Project Status - AI Video Generator</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.0/font/bootstrap-icons.css">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/styles.css') }}">
+</head>
+<body>
+    <nav class="navbar navbar-expand-lg navbar-dark bg-dark">
+        <div class="container">
+            <a class="navbar-brand" href="{{ url_for('index') }}">
+                <i class="bi bi-camera-video"></i> AI Video Generator
+            </a>
+            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+            <div class="collapse navbar-collapse" id="navbarNav">
+                <ul class="navbar-nav ms-auto">
+                    <li class="nav-item">
+                        <a class="nav-link" href="{{ url_for('index') }}">Dashboard</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="{{ url_for('create_project') }}">Create Project</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="{{ url_for('settings') }}">Settings</a>
+                    </li>
+                </ul>
+            </div>
+        </div>
+    </nav>
+
+    <div class="container mt-4 project-status-page" data-project-id="{{ project_id }}">
+        <div class="row mb-4">
+            <div class="col-md-12">
+                <div class="card">
+                    <div class="card-body">
+                        <h3 class="card-title">
+                            <i class="bi bi-activity"></i> Project Status: {{ project.topic }}
+                        </h3>
+                        <div class="row mt-4">
+                            <div class="col-md-6">
+                                <p><strong>Status:</strong> <span id="project-status" class="badge 
+                                    {% if project.status == 'running' %}bg-primary
+                                    {% elif project.status == 'completed' %}bg-success
+                                    {% elif project.status == 'failed' %}bg-danger
+                                    {% else %}bg-secondary{% endif %}">
+                                    {{ project.status|upper }}
+                                </span></p>
+                                <p><strong>Started:</strong> {{ project.time_started }}</p>
+                                {% if project.time_completed %}
+                                <p><strong>Completed:</strong> {{ project.time_completed }}</p>
+                                {% endif %}
+                            </div>
+                            <div class="col-md-6">
+                                <p><strong>Progress:</strong></p>
+                                <div class="progress">
+                                    <div id="progress-bar" class="progress-bar" role="progressbar" 
+                                         style="width: {{ project.progress }}%;" 
+                                         aria-valuenow="{{ project.progress }}" aria-valuemin="0" aria-valuemax="100">
+                                        {{ project.progress }}%
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Output Section (Initially Hidden) -->
+        <div id="output-section" class="row mb-4 {% if project.status != 'completed' and project.status != 'partially_completed' %}d-none{% endif %}">
+            <div class="col-md-12">
+                <div class="card">
+                    <div class="card-header bg-success text-white">
+                        <h4><i class="bi bi-check-circle"></i> Output Files</h4>
+                    </div>
+                    <div class="card-body">
+                        <div class="row">
+                            <div class="col-md-6">
+                                <h5>Generated Video</h5>
+                                <p>Your video has been successfully generated!</p>
+                                <div class="d-grid gap-2">
+                                    <a id="final-video-link" href="#" class="btn btn-primary disabled">
+                                        <i class="bi bi-play-circle"></i> Watch Final Video
+                                    </a>
+                                    <a id="draft-video-link" href="#" class="btn btn-outline-primary disabled">
+                                        <i class="bi bi-play-circle"></i> Watch Draft Video
+                                    </a>
+                                </div>
+                            </div>
+                            <div class="col-md-6">
+                                <h5>Project Files</h5>
+                                <p>You can download the individual files:</p>
+                                <ul class="list-group">
+                                    <li class="list-group-item d-flex justify-content-between align-items-center">
+                                        Script
+                                        <a href="#" class="btn btn-sm btn-outline-secondary disabled">Download</a>
+                                    </li>
+                                    <li class="list-group-item d-flex justify-content-between align-items-center">
+                                        Audio
+                                        <a href="#" class="btn btn-sm btn-outline-secondary disabled">Download</a>
+                                    </li>
+                                    <li class="list-group-item d-flex justify-content-between align-items-center">
+                                        Subtitles
+                                        <a href="#" class="btn btn-sm btn-outline-secondary disabled">Download</a>
+                                    </li>
+                                </ul>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Error Section (Initially Hidden) -->
+        <div id="error-section" class="row mb-4 {% if project.status != 'failed' %}d-none{% endif %}">
+            <div class="col-md-12">
+                <div class="card">
+                    <div class="card-header bg-danger text-white">
+                        <h4><i class="bi bi-exclamation-triangle"></i> Error</h4>
+                    </div>
+                    <div class="card-body">
+                        <p>An error occurred during video generation:</p>
+                        <div class="alert alert-danger" id="error-message">
+                            {% if project.error %}
+                                {{ project.error }}
+                            {% else %}
+                                Unknown error
+                            {% endif %}
+                        </div>
+                        <p>You can try to resume the project from a previous stage.</p>
+                        <button class="btn btn-warning resume-project" data-project-id="{{ project_id }}">
+                            <i class="bi bi-play-fill"></i> Resume Project
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Pipeline Stages -->
+        <div class="row">
+            <div class="col-md-12">
+                <h4 class="mb-3">Pipeline Stages</h4>
+                
+                <div class="stage-card card mb-3 {% if project.status == 'running' and project.stage == 'script_generation' %}running{% endif %}">
+                    <div class="card-body">
+                        <div class="d-flex justify-content-between align-items-center">
+                            <h5><i class="bi bi-file-text"></i> Script Generation</h5>
+                            <span id="stage-script_generation" class="badge 
+                                {% if project.stage == 'script_generation' and project.status == 'running' %}bg-primary
+                                {% elif project.completed_stages and 'script_generation' in project.completed_stages %}bg-success
+                                {% elif project.failed_stages and 'script_generation' in project.failed_stages %}bg-danger
+                                {% elif project.skipped_stages and 'script_generation' in project.skipped_stages %}bg-warning
+                                {% else %}bg-secondary{% endif %}">
+                                {% if project.stage == 'script_generation' and project.status == 'running' %}
+                                    RUNNING
+                                {% elif project.completed_stages and 'script_generation' in project.completed_stages %}
+                                    COMPLETED
+                                {% elif project.failed_stages and 'script_generation' in project.failed_stages %}
+                                    FAILED
+                                {% elif project.skipped_stages and 'script_generation' in project.skipped_stages %}
+                                    SKIPPED
+                                {% else %}
+                                    PENDING
+                                {% endif %}
+                            </span>
+                        </div>
+                        <p class="text-muted mt-2 mb-0">Creating an engaging script based on your topic</p>
+                    </div>
+                </div>
+                
+                <div class="stage-card card mb-3 {% if project.status == 'running' and project.stage == 'voice_generation' %}running{% endif %}">
+                    <div class="card-body">
+                        <div class="d-flex justify-content-between align-items-center">
+                            <h5><i class="bi bi-mic"></i> Voice Generation</h5>
+                            <span id="stage-voice_generation" class="badge 
+                                {% if project.stage == 'voice_generation' and project.status == 'running' %}bg-primary
+                                {% elif project.completed_stages and 'voice_generation' in project.completed_stages %}bg-success
+                                {% elif project.failed_stages and 'voice_generation' in project.failed_stages %}bg-danger
+                                {% elif project.skipped_stages and 'voice_generation' in project.skipped_stages %}bg-warning
+                                {% else %}bg-secondary{% endif %}">
+                                {% if project.stage == 'voice_generation' and project.status == 'running' %}
+                                    RUNNING
+                                {% elif project.completed_stages and 'voice_generation' in project.completed_stages %}
+                                    COMPLETED
+                                {% elif project.failed_stages and 'voice_generation' in project.failed_stages %}
+                                    FAILED
+                                {% elif project.skipped_stages and 'voice_generation' in project.skipped_stages %}
+                                    SKIPPED
+                                {% else %}
+                                    PENDING
+                                {% endif %}
+                            </span>
+                        </div>
+                        <p class="text-muted mt-2 mb-0">Converting script to natural-sounding speech</p>
+                    </div>
+                </div>
+                
+                <div class="stage-card card mb-3 {% if project.status == 'running' and project.stage == 'media_selection' %}running{% endif %}">
+                    <div class="card-body">
+                        <div class="d-flex justify-content-between align-items-center">
+                            <h5><i class="bi bi-images"></i> Media Selection</h5>
+                            <span id="stage-media_selection" class="badge 
+                                {% if project.stage == 'media_selection' and project.status == 'running' %}bg-primary
+                                {% elif project.completed_stages and 'media_selection' in project.completed_stages %}bg-success
+                                {% elif project.failed_stages and 'media_selection' in project.failed_stages %}bg-danger
+                                {% elif project.skipped_stages and 'media_selection' in project.skipped_stages %}bg-warning
+                                {% else %}bg-secondary{% endif %}">
+                                {% if project.stage == 'media_selection' and project.status == 'running' %}
+                                    RUNNING
+                                {% elif project.completed_stages and 'media_selection' in project.completed_stages %}
+                                    COMPLETED
+                                {% elif project.failed_stages and 'media_selection' in project.failed_stages %}
+                                    FAILED
+                                {% elif project.skipped_stages and 'media_selection' in project.skipped_stages %}
+                                    SKIPPED
+                                {% else %}
+                                    PENDING
+                                {% endif %}
+                            </span>
+                        </div>
+                        <p class="text-muted mt-2 mb-0">Finding relevant images and videos for your content</p>
+                    </div>
+                </div>
+                
+                <div class="stage-card card mb-3 {% if project.status == 'running' and project.stage == 'subtitle_generation' %}running{% endif %}">
+                    <div class="card-body">
+                        <div class="d-flex justify-content-between align-items-center">
+                            <h5><i class="bi bi-badge-cc"></i> Subtitle Generation</h5>
+                            <span id="stage-subtitle_generation" class="badge 
+                                {% if project.stage == 'subtitle_generation' and project.status == 'running' %}bg-primary
+                                {% elif project.completed_stages and 'subtitle_generation' in project.completed_stages %}bg-success
+                                {% elif project.failed_stages and 'subtitle_generation' in project.failed_stages %}bg-danger
+                                {% elif project.skipped_stages and 'subtitle_generation' in project.skipped_stages %}bg-warning
+                                {% else %}bg-secondary{% endif %}">
+                                {% if project.stage == 'subtitle_generation' and project.status == 'running' %}
+                                    RUNNING
+                                {% elif project.completed_stages and 'subtitle_generation' in project.completed_stages %}
+                                    COMPLETED
+                                {% elif project.failed_stages and 'subtitle_generation' in project.failed_stages %}
+                                    FAILED
+                                {% elif project.skipped_stages and 'subtitle_generation' in project.skipped_stages %}
+                                    SKIPPED
+                                {% else %}
+                                    PENDING
+                                {% endif %}
+                            </span>
+                        </div>
+                        <p class="text-muted mt-2 mb-0">Creating synchronized subtitles for accessibility</p>
+                    </div>
+                </div>
+                
+                <div class="stage-card card mb-3 {% if project.status == 'running' and project.stage == 'video_assembly' %}running{% endif %}">
+                    <div class="card-body">
+                        <div class="d-flex justify-content-between align-items-center">
+                            <h5><i class="bi bi-film"></i> Video Assembly</h5>
+                            <span id="stage-video_assembly" class="badge 
+                                {% if project.stage == 'video_assembly' and project.status == 'running' %}bg-primary
+                                {% elif project.completed_stages and 'video_assembly' in project.completed_stages %}bg-success
+                                {% elif project.failed_stages and 'video_assembly' in project.failed_stages %}bg-danger
+                                {% elif project.skipped_stages and 'video_assembly' in project.skipped_stages %}bg-warning
+                                {% else %}bg-secondary{% endif %}">
+                                {% if project.stage == 'video_assembly' and project.status == 'running' %}
+                                    RUNNING
+                                {% elif project.completed_stages and 'video_assembly' in project.completed_stages %}
+                                    COMPLETED
+                                {% elif project.failed_stages and 'video_assembly' in project.failed_stages %}
+                                    FAILED
+                                {% elif project.skipped_stages and 'video_assembly' in project.skipped_stages %}
+                                    SKIPPED
+                                {% else %}
+                                    PENDING
+                                {% endif %}
+                            </span>
+                        </div>
+                        <p class="text-muted mt-2 mb-0">Composing media into a structured video timeline</p>
+                    </div>
+                </div>
+                
+                <div class="stage-card card mb-3 {% if project.status == 'running' and project.stage == 'audio_processing' %}running{% endif %}">
+                    <div class="card-body">
+                        <div class="d-flex justify-content-between align-items-center">
+                            <h5><i class="bi bi-music-note-beamed"></i> Audio Processing</h5>
+                            <span id="stage-audio_processing" class="badge 
+                                {% if project.stage == 'audio_processing' and project.status == 'running' %}bg-primary
+                                {% elif project.completed_stages and 'audio_processing' in project.completed_stages %}bg-success
+                                {% elif project.failed_stages and 'audio_processing' in project.failed_stages %}bg-danger
+                                {% elif project.skipped_stages and 'audio_processing' in project.skipped_stages %}bg-warning
+                                {% else %}bg-secondary{% endif %}">
+                                {% if project.stage == 'audio_processing' and project.status == 'running' %}
+                                    RUNNING
+                                {% elif project.completed_stages and 'audio_processing' in project.completed_stages %}
+                                    COMPLETED
+                                {% elif project.failed_stages and 'audio_processing' in project.failed_stages %}
+                                    FAILED
+                                {% elif project.skipped_stages and 'audio_processing' in project.skipped_stages %}
+                                    SKIPPED
+                                {% else %}
+                                    PENDING
+                                {% endif %}
+                            </span>
+                        </div>
+                        <p class="text-muted mt-2 mb-0">Adding background music and enhancing audio quality</p>
+                    </div>
+                </div>
+                
+                <div class="stage-card card mb-3 {% if project.status == 'running' and project.stage == 'final_export' %}running{% endif %}">
+                    <div class="card-body">
+                        <div class="d-flex justify-content-between align-items-center">
+                            <h5><i class="bi bi-box-arrow-up-right"></i> Final Export</h5>
+                            <span id="stage-final_export" class="badge 
+                                {% if project.stage == 'final_export' and project.status == 'running' %}bg-primary
+                                {% elif project.completed_stages and 'final_export' in project.completed_stages %}bg-success
+                                {% elif project.failed_stages and 'final_export' in project.failed_stages %}bg-danger
+                                {% elif project.skipped_stages and 'final_export' in project.skipped_stages %}bg-warning
+                                {% else %}bg-secondary{% endif %}">
+                                {% if project.stage == 'final_export' and project.status == 'running' %}
+                                    RUNNING
+                                {% elif project.completed_stages and 'final_export' in project.completed_stages %}
+                                    COMPLETED
+                                {% elif project.failed_stages and 'final_export' in project.failed_stages %}
+                                    FAILED
+                                {% elif project.skipped_stages and 'final_export' in project.skipped_stages %}
+                                    SKIPPED
+                                {% else %}
+                                    PENDING
+                                {% endif %}
+                            </span>
+                        </div>
+                        <p class="text-muted mt-2 mb-0">Creating the final optimized video file</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="row mb-4">
+            <div class="col-md-12">
+                <div class="d-flex justify-content-between">
+                    <a href="{{ url_for('index') }}" class="btn btn-secondary">
+                        <i class="bi bi-arrow-left"></i> Back to Dashboard
+                    </a>
+                    {% if project.status == 'completed' or project.status == 'partially_completed' %}
+                    <a href="#" class="btn btn-primary" id="download-video">
+                        <i class="bi bi-download"></i> Download Video
+                    </a>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Resume Project Modal -->
+    <div class="modal fade" id="resumeProjectModal" tabindex="-1" aria-hidden="true">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title">Resume Project</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <form id="resumeForm">
+                        <div class="mb-3">
+                            <label for="startFrom" class="form-label">Start from stage:</label>
+                            <select class="form-select" id="startFrom" name="start_from">
+                                <option value="">Auto (first incomplete)</option>
+                                <option value="script_generation">Script Generation</option>
+                                <option value="voice_generation">Voice Generation</option>
+                                <option value="media_selection">Media Selection</option>
+                                <option value="subtitle_generation">Subtitle Generation</option>
+                                <option value="video_assembly">Video Assembly</option>
+                                <option value="audio_processing">Audio Processing</option>
+                                <option value="final_export">Final Export</option>
+                            </select>
+                        </div>
+                        <div class="mb-3">
+                            <label for="skipStages" class="form-label">Skip stages (comma-separated):</label>
+                            <input type="text" class="form-control" id="skipStages" name="skip_stages" placeholder="e.g. subtitle_generation,audio_processing">
+                        </div>
+                    </form>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                    <button type="button" class="btn btn-primary" id="confirmResume">Resume</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <footer class="bg-dark text-white text-center py-3 mt-5">
+        <div class="container">
+            <p class="mb-0">AI Video Generator &copy; 2025</p>
+        </div>
+    </footer>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <script src="{{ url_for('static', filename='js/main.js') }}"></script>
+</body>
+</html>

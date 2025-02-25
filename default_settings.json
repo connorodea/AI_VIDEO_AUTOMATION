@@ -1,0 +1,117 @@
+{
+  "default_llm_provider": "openai",
+  "default_llm_model": "gpt-4",
+  
+  "script": {
+    "min_length": 300,
+    "max_length": 1500,
+    "tone": "informative",
+    "include_timestamps": true,
+    "timestamp_interval": 30,
+    "structure": ["intro", "main_points", "conclusion"]
+  },
+  
+  "voiceover": {
+    "provider": "elevenlabs",
+    "default_voice": "adam",
+    "speech_rate": 1.0,
+    "stability": 0.5,
+    "clarity": 0.75
+  },
+  
+  "visual_assets": {
+    "providers": ["pexels", "pixabay", "unsplash"],
+    "max_assets_per_segment": 3,
+    "prefer_video_over_image": true,
+    "min_resolution": {
+      "width": 1280,
+      "height": 720
+    },
+    "aspect_ratio": "16:9"
+  },
+  
+  "video_editing": {
+    "output_resolution": {
+      "width": 1920,
+      "height": 1080
+    },
+    "fps": 30,
+    "transitions": {
+      "default": "fade",
+      "duration": 0.8,
+      "random_variation": false
+    },
+    "ken_burns": {
+      "enabled": true,
+      "min_zoom": 1.0,
+      "max_zoom": 1.2,
+      "min_duration": 5,
+      "max_duration": 10
+    },
+    "overlay": {
+      "logo": {
+        "enabled": false,
+        "path": "assets/logo.png",
+        "position": "bottom-right",
+        "opacity": 0.8
+      },
+      "grain": {
+        "enabled": false,
+        "strength": 0.2
+      },
+      "text_style": {
+        "font": "Montserrat",
+        "color": "#FFFFFF",
+        "shadow": true
+      }
+    }
+  },
+  
+  "subtitle": {
+    "enabled": true,
+    "font": "Roboto",
+    "font_size": 30,
+    "position": "bottom",
+    "background_opacity": 0.5,
+    "max_chars_per_line": 42
+  },
+  
+  "audio": {
+    "music": {
+      "enabled": true,
+      "volume": 0.2,
+      "fade_in": 2.0,
+      "fade_out": 3.0,
+      "sources": ["musicbed", "artlist", "epidemic_sound"]
+    },
+    "normalization": {
+      "target_lufs": -14,
+      "true_peak": -1.0
+    },
+    "voice_enhancement": {
+      "enabled": true,
+      "noise_reduction": 0.3,
+      "compression": 0.4,
+      "eq": {
+        "enabled": true,
+        "preset": "voice"
+      }
+    }
+  },
+  
+  "export": {
+    "format": "mp4",
+    "codec": "h264",
+    "quality": "high",
+    "bitrate": "5M"
+  },
+  
+  "youtube": {
+    "auto_upload": false,
+    "category": "22",
+    "privacy": "private",
+    "generate_description": true,
+    "generate_tags": true,
+    "max_tags": 15
+  }
+}
